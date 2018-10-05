@@ -1,0 +1,6 @@
+data
+ckpt_*
+.vs
+*.pyc
+*.pyproj
+*.sln
