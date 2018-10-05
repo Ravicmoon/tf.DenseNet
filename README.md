@@ -28,5 +28,7 @@ Summary of the experiment
 
 Achieved an __error rate of 5.74%__
 
+<img src="https://github.com/Ravicmoon/tf.DenseNet/blob/master/results/CIFAR-10_training_loss.png" width="350"><img src="https://github.com/Ravicmoon/tf.DenseNet/blob/master/results/CIFAR-10_training_acc.png" width="350">
+
 ## Important notes
 Currently, we have tested the implementation only for CIFAR-10. More results will be posted right after we finish the experiments.
