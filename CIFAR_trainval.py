@@ -12,7 +12,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 
 FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_integer('num_steps', '240000', 'number of steps for optimization')
+tf.flags.DEFINE_integer('num_epochs', '300', 'number of steps for optimization')
 tf.flags.DEFINE_integer('batch_size', '64', 'batch size for training')
 tf.flags.DEFINE_integer('depth', '100', 'depth of the architecture')
 tf.flags.DEFINE_integer('growth_rate', '12', 'growth rate of the architecture')
@@ -92,11 +92,11 @@ def main(_):
         '''
          Define the learning rate
         '''
-        num_batches_per_epoch = num_samples / FLAGS.batch_size
+        num_batches_per_epoch = int(num_samples / FLAGS.batch_size + 0.5)
+        num_steps = FLAGS.num_epochs * num_batches_per_epoch
+        boundaries = [int(num_steps * 0.5), int(num_steps * 0.75)]
             
-        lr = tf.train.piecewise_constant(tf.train.get_or_create_global_step(),
-                                            [int(num_batches_per_epoch * 150), int(num_batches_per_epoch * 225)],
-                                            [0.1, 0.01, 0.001])
+        lr = tf.train.piecewise_constant(tf.train.get_or_create_global_step(), boundaries, [0.1, 0.01, 0.001])
 
         '''
          Define the optimizer
@@ -111,7 +111,8 @@ def main(_):
 
         # generate a log to save hyper-parameter info
         with open(os.path.join(log_dir, 'info.txt'), 'w') as f:
-            f.write('num_steps: ' + str(FLAGS.num_steps) + '\n')
+            f.write('num_epochs: ' + str(FLAGS.num_epochs) + '\n')
+            f.write('num_steps: ' + str(num_steps) + '\n')
             f.write('batch_size: ' + str(FLAGS.batch_size) + '\n')
             f.write('depth: ' + str(FLAGS.depth) + '\n')
             f.write('growth_rate: ' + str(FLAGS.growth_rate) + '\n')
@@ -126,8 +127,9 @@ def main(_):
                 train_op = train_op,
                 logdir = log_dir,
                 init_fn = None,
-                number_of_steps = FLAGS.num_steps,
-                summary_op = tf.summary.merge_all())
+                number_of_steps = num_steps,
+                summary_op = tf.summary.merge_all(),
+                save_summaries_secs = 60)
 
         print('Finished training. Final batch loss %f' %final_loss)
 
