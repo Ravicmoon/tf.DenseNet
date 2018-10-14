@@ -2,6 +2,12 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import os
 
+_MEAN_CIFAR10 = [125.3, 123.0, 113.9]
+_STD_CIFAR10 = [63.0, 62.1, 66.7]
+
+_MEAN_CIFAR100 = [129.3, 124.1, 112.4]
+_STD_CIFAR100 = [68.2, 65.4, 70.4]
+
 class TFRecordDataset:
 
     def __init__(self, tfrecord_dir, dataset_name):
@@ -95,18 +101,39 @@ class TFRecordCIFAR(TFRecordDataset):
                 'label': 'A label of the input image'}
 
 
+    def _normalize_image(self, image, means, stds):
+        ''' Revised from vgg_preprocessing.py in TensorFlowOnSpark
+        (https://github.com/yahoo/TensorFlowOnSpark/tree/master/examples/slim/preprocessing)
+        '''
+        if image.get_shape().ndims != 3:
+            raise ValueError('Input must be of size [height, width, C>0]')
+        num_channels = image.get_shape().as_list()[-1]
+        if len(means) != num_channels:
+            raise ValueError('len(means) must match the number of channels')
+        
+        channels = tf.split(axis=2, num_or_size_splits=num_channels, value=image)
+        for i in range(num_channels):
+            channels[i] = (channels[i] - means[i]) / stds[i]
+        return tf.concat(axis=2, values=channels)
+
+
     def _preprocess(self, provider, mode, batch_size, height, width):
 
         [image, label] = provider.get(['image', 'label'])
-            
+        
+        image = tf.cast(image, tf.float32)
+        if self.dataset_name == 'CIFAR-10':
+            image = self._normalize_image(image, _MEAN_CIFAR10, _STD_CIFAR10)
+        elif self.dataset_name == 'CIFAR-100':
+            image = self._normalize_image(image, _MEAN_CIFAR100, _STD_CIFAR100)
+        else:
+            image = tf.image.per_image_standardization(image)
+
         if mode == 'train':
             paddings = tf.constant([[4, 4], [4, 4], [0, 0]])
             image = tf.pad(image, paddings, 'CONSTANT')
             image = tf.random_crop(image, [32, 32, 3])
-            image = tf.image.per_image_standardization(image)
             image = tf.image.random_flip_left_right(image)
-        else:
-            image = tf.image.per_image_standardization(image)
 
         one_hot_label = slim.one_hot_encoding(label, self.num_labels)
 
