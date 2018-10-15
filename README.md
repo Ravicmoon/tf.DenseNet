@@ -10,11 +10,11 @@ There are three objectives of this project
 1. Python 3.6
 2. Tensorflow rc1.10 or above
 3. Numpy
-4. CIFAR-10 or CIFAR-100 datasets
+4. CIFAR-10 or CIFAR-100 or ImageNet datasets
 
 ## Preparing dataset
 ### CIFAR-10 and CIFAR-100
-Please download CIFAR-10 or CIFAR-100 datasets from [here](https://www.cs.toronto.edu/~kriz/cifar.html). Unzip the zip files and put the listed files below (these files do not have file extensions) in the working directory. Then, use _CIFAR_to_tfrecord.py_ to convert CIFAR datasets to _tfrecord_ files.
+Please download CIFAR-10 or CIFAR-100 datasets from [here](https://www.cs.toronto.edu/~kriz/cifar.html). Unzip the downloaded files and put the listed files below (these files do not have file extensions) in the working directory. Then, use _CIFAR_to_tfrecord.py_ to convert CIFAR datasets to _tfrecord_ files.
 * CIFAR-10: data_batch1~data_batch5, and test_batch
 * CIFAR_100: train and test
 ### ImageNet
