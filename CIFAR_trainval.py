@@ -88,6 +88,7 @@ def main(_):
         acc = tf.reduce_mean(tf.cast(tp, tf.float32))
         tf.summary.scalar('acc', acc)
         tf.summary.scalar('loss', loss)
+        tf.summary.image('input', images)
 
         '''
          Define the learning rate

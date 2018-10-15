@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 import os
-import cv2
 
 def _unpickle(file):
     import pickle
@@ -23,15 +22,12 @@ def _convert_to_file(dict, file_name, num_samples, is_CIFAR10):
         print('processing ' + str(dict[b'filenames'][n], 'UTF-8') + ' file...')
         
         img = np.reshape(dict[b'data'][n, :], [3, 32, 32])
-        img = np.dstack((img[2, :, :], img[1, :, :], img[0, :, :]))
+        img = np.dstack((img[0, :, :], img[1, :, :], img[2, :, :]))
         if is_CIFAR10:
             label = dict[b'labels'][n]
         else:
             label = dict[b'fine_labels'][n]
-        '''
-        cv2.imshow('CIFAR', img)
-        cv2.waitKey()
-        '''
+        
         example = tf.train.Example(features=tf.train.Features(feature={
             'image/encoded': _bytes_feature(img.tostring()),
             'image/format': _bytes_feature(b'raw'),
@@ -43,7 +39,7 @@ def _convert_to_file(dict, file_name, num_samples, is_CIFAR10):
 
 '''
  Convert CIFAR-10 dataset to tfrecord files
- Please note that colors are encoded in BGR order, not RGB
+ Please note that colors are encoded in RGB order
 '''
 for i in range(0, 5):
     
@@ -51,7 +47,7 @@ for i in range(0, 5):
     _convert_to_file(dict, 'CIFAR-10_train' + str(i) + '.tfrecord', 10000, True)
 
 dict = _unpickle('test_batch')
-_convert_to_file(dict, 'CIFAR-10_valid0.tfrecord', 10000, True)
+_convert_to_file(dict, 'CIFAR-10_valid.tfrecord', 10000, True)
 
 '''
  Convert CIFAR-100 dataset to tfrecord files
