@@ -43,7 +43,7 @@ def main(_):
     images = data[0]
     labels = data[1]
         
-    net = DenseNet(FLAGS.depth, FLAGS.growth_rate)
+    net = DenseNet(FLAGS.data_name, FLAGS.depth, FLAGS.growth_rate)
     logits = net.model(images, num_classes, is_training)
 
     
